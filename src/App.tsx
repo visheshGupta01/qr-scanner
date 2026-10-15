@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { readBarcodes } from 'zxing-wasm/reader';
-import { Camera, Check, Copy, ExternalLink, ImagePlus, ScanLine, ShieldCheck } from 'lucide-react';
+import { Camera, Check, Copy, ExternalLink, ImagePlus, ShieldCheck } from 'lucide-react';
 
 type ScanResult = { text: string; format: string; time: number; path: string };
 
