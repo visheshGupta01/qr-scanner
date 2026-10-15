@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { readBarcodes } from 'zxing-wasm/reader';
-import { Camera, Check, Copy, ExternalLink, ImagePlus, ScanLine, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { Camera, Check, Copy, ExternalLink, ImagePlus, ScanLine, ShieldCheck } from 'lucide-react';
 
 type ScanResult = { text: string; format: string; time: number; path: string };
 
@@ -183,10 +183,10 @@ export default function App() {
   };
 
   return <main className="app-shell">
-    <header className="topbar"><a className="brand" href="#top"><span className="brand-mark"><ScanLine size={21}/></span><span>prism<span className="brand-light">scan</span></span><span className="beta">BETA</span></a><div className="top-note"><span className="live-dot"/> Runs locally in your browser</div></header>
-    <section className="hero" id="top"><div className="eyebrow">COLLEGE PROJECT · IN BROWSER</div><h1>A QR scanner that<br/><span>tries again when needed.</span></h1><p className="subtitle">Scan with your camera or upload an image. If a stylized or low-contrast code fails on the first pass, Prism Scan tries a couple of image-recovery steps.</p></section>
+    <header className="topbar"><a className="brand" href="#top">QR Scanner</a><span className="top-note">Local processing · No account needed</span></header>
+    <section className="hero" id="top"><h1>Scan a QR code</h1><p className="subtitle">Use your camera or choose an image. If a code is difficult to read, the scanner will try basic image adjustments.</p></section>
     <section className="workspace">
-      <div className="scanner-panel panel"><div className="panel-heading"><div><div className="section-kicker">SCANNER</div><h2>Scan a code</h2></div><span className={`status-chip ${result ? 'success' : ''}`}><span className="status-dot"/>{result ? 'Decoded' : status}</span></div>
+      <div className="scanner-panel panel"><div className="panel-heading"><div><h2>Camera / image</h2></div><span className={`status-chip ${result ? 'success' : ''}`}><span className="status-dot"/>{result ? 'Decoded' : status}</span></div>
         <div className={`camera-stage ${cameraOn ? 'camera-active' : ''}`}>
           <video ref={videoRef} className={cameraOn ? 'visible' : ''} playsInline muted aria-label="Live camera preview"/><canvas ref={canvasRef} className="processing-canvas"/>
           {!cameraOn && <div className="camera-placeholder"><div className="placeholder-icon"><Camera size={29}/></div><strong>Your scanner is ready</strong><span>Start your camera or upload a QR image to begin.</span></div>}
@@ -198,13 +198,13 @@ export default function App() {
         <p className="permission-note"><ShieldCheck size={14}/> Camera frames are processed on-device and are not sent to a server.</p>
       </div>
       <aside className="right-column">
-        <div className="result-panel panel"><div className="panel-heading"><div><div className="section-kicker">OUTPUT</div><h2>Scan result</h2></div><span className="result-icon"><Check size={17}/></span></div>
-          {result ? <div className="result-content"><div className="decoded-badge"><Check size={13}/> QR CODE DECODED</div><div className="result-text">{result.text}</div><div className="result-meta"><span>{result.format}</span><span>{result.time.toFixed(0)} ms</span><span>{result.path}</span></div><div className="result-actions"><button className="button primary" onClick={() => void copyResult()}>{copied ? <Check size={16}/> : <Copy size={16}/>} {copied ? 'Copied' : 'Copy result'}</button>{isUrl(result.text) && <a className="button secondary" href={result.text} target="_blank" rel="noreferrer">Open link <ExternalLink size={15}/></a>}</div><button className="text-button" onClick={() => { setResult(null); setStatus('Ready to scan'); }}>Clear result</button></div> : <div className="empty-result"><div className="empty-glyph"><ScanLine size={25}/></div><strong>Nothing scanned yet</strong><span>Your decoded text or URL will appear here.</span></div>}
+        <div className="result-panel panel"><div className="panel-heading"><div><div className="section-kicker">OUTPUT</div><h2>Scan result</h2></div></div>
+          {result ? <div className="result-content"><div className="decoded-badge"><Check size={13}/> Decoded</div><div className="result-text">{result.text}</div><div className="result-meta"><span>{result.format}</span><span>{result.time.toFixed(0)} ms</span><span>{result.path}</span></div><div className="result-actions"><button className="button primary" onClick={() => void copyResult()}>{copied ? <Check size={16}/> : <Copy size={16}/>} {copied ? 'Copied' : 'Copy result'}</button>{isUrl(result.text) && <a className="button secondary" href={result.text} target="_blank" rel="noreferrer">Open link <ExternalLink size={15}/></a>}</div><button className="text-button" onClick={() => { setResult(null); setStatus('Ready to scan'); }}>Clear result</button></div> : <div className="empty-result"><strong>No result yet</strong><span>The decoded text or link will show here.</span></div>}
         </div>
-        <div className="metrics-panel panel"><div className="section-kicker">SESSION METRICS</div><div className="metrics-grid"><div className="metric"><span>Successful scans</span><strong>{scans}</strong></div><div className="metric"><span>Recovered scans</span><strong>{recovered}</strong></div><div className="metric metric-wide"><span>Last decode time</span><strong>{lastLatency === null ? '—' : `${lastLatency.toFixed(0)} ms`}</strong><small>Measured in this browser session</small></div></div></div>
+        <div className="metrics-panel panel"><div className="metrics-title">This session</div><div className="metrics-grid"><div className="metric"><span>Successful scans</span><strong>{scans}</strong></div><div className="metric"><span>Recovered scans</span><strong>{recovered}</strong></div><div className="metric metric-wide"><span>Last decode time</span><strong>{lastLatency === null ? '—' : `${lastLatency.toFixed(0)} ms`}</strong><small>Time for the last successful decode</small></div></div></div>
       </aside>
     </section>
-    <section className="how-section"><div className="section-kicker">HOW IT WORKS</div><h2>One normal attempt, then recovery.</h2><div className="feature-grid"><article className="feature-card"><span className="feature-icon violet"><Zap size={19}/></span><h3>1. Decode the original</h3><p>The scanner tries the unmodified image first to keep common scans quick.</p></article><article className="feature-card"><span className="feature-icon blue"><Sparkles size={19}/></span><h3>2. Adjust the image</h3><p>If decoding fails, it tests a contrast-normalized image and a black-and-white version.</p></article><article className="feature-card"><span className="feature-icon green"><ShieldCheck size={19}/></span><h3>3. Keep it local</h3><p>Image processing happens in this browser; nothing is uploaded to a server.</p></article></div></section>
-    <footer><span>PRISM SCAN <span className="footer-muted">· College club prototype</span></span><span>Target: under 500 ms · Actual performance depends on device and QR design</span></footer>
+    <section className="method-note"><strong>If the first scan fails</strong><p>The app retries with contrast normalization and a black-and-white version of the image. Camera frames and uploaded images are processed in this browser.</p></section>
+    <footer><span>QR Scanner · College project</span><span>Decode time varies with the device and image quality.</span></footer>
   </main>;
 }
