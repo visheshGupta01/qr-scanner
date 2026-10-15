@@ -5,7 +5,12 @@ import { Camera, Check, Copy, ExternalLink, ImagePlus, RefreshCw, ScanLine, Shie
 type ScanResult = { text: string; format: string; time: number; path: string };
 
 async function decode(source: ImageData | HTMLCanvasElement) {
-  return readBarcodes(source, { formats: ['QRCode'], tryHarder: true, tryRotate: true, tryInvert: true, maxNumberOfSymbols: 1 });
+  // zxing-wasm accepts ImageData, not a canvas element; extract the pixels first.
+  const imageData = source instanceof HTMLCanvasElement
+    ? source.getContext('2d', { willReadFrequently: true })?.getImageData(0, 0, source.width, source.height)
+    : source;
+  if (!imageData) return [];
+  return readBarcodes(imageData, { formats: ['QRCode'], tryHarder: true, tryRotate: true, tryInvert: true, maxNumberOfSymbols: 1 });
 }
 
 function makeRecoveryVariants(input: HTMLCanvasElement): HTMLCanvasElement[] {
