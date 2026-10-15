@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { readBarcodes } from 'zxing-wasm/reader';
-import { Camera, Check, Copy, ExternalLink, ImagePlus, ShieldCheck } from 'lucide-react';
 
 type ScanResult = { text: string; format: string; time: number; path: string };
 
@@ -183,28 +182,27 @@ export default function App() {
   };
 
   return <main className="app-shell">
-    <header className="topbar"><a className="brand" href="#top">QR Scanner</a><span className="top-note">Local processing · No account needed</span></header>
-    <section className="hero" id="top"><h1>Scan a QR code</h1><p className="subtitle">Use your camera or choose an image. If a code is difficult to read, the scanner will try basic image adjustments.</p></section>
+    <header className="topbar"><a className="brand" href="#top">QR Scanner</a><span className="top-note">Runs in your browser</span></header>
+    <section className="hero" id="top"><h1>Scan a code</h1><p className="subtitle">Start the camera or upload an image containing a QR code.</p></section>
     <section className="workspace">
-      <div className="scanner-panel panel"><div className="panel-heading"><div><h2>Camera / image</h2></div><span className={`status-chip ${result ? 'success' : ''}`}><span className="status-dot"/>{result ? 'Decoded' : status}</span></div>
+      <div className="scanner-panel panel"><div className="panel-heading"><div><h2>Scanner</h2></div><span className={`status-chip ${result ? 'success' : ''}`}>{result ? 'Decoded' : status}</span></div>
         <div className={`camera-stage ${cameraOn ? 'camera-active' : ''}`}>
           <video ref={videoRef} className={cameraOn ? 'visible' : ''} playsInline muted aria-label="Live camera preview"/><canvas ref={canvasRef} className="processing-canvas"/>
-          {!cameraOn && <div className="camera-placeholder"><div className="placeholder-icon"><Camera size={29}/></div><strong>Your scanner is ready</strong><span>Start your camera or upload a QR image to begin.</span></div>}
-          {cameraOn && <div className="scan-overlay"><i className="corner tl"/><i className="corner tr"/><i className="corner bl"/><i className="corner br"/><span className="scan-line"/></div>}
-          <div className="stage-label"><span className="live-dot"/>{cameraOn ? 'LIVE CAMERA' : 'AWAITING INPUT'}</div>
+          {!cameraOn && <div className="camera-placeholder"><strong>Your scanner is ready</strong><span>Start your camera or upload a QR image to begin.</span></div>}
+          {cameraOn && <div className="scan-overlay"><i className="corner tl"/><i className="corner tr"/><i className="corner bl"/><i className="corner br"/></div>}
+          <div className="stage-label">{cameraOn ? 'Camera on' : 'Waiting for input'}</div>
         </div>
         {error && <div className="error-banner">{error}</div>}
-        <div className="scan-actions"><button className="button primary" onClick={cameraOn ? stopCamera : startCamera}>{cameraOn ? <><Camera size={17}/> Stop camera</> : <><Camera size={17}/> Start camera</>}</button><label className="button secondary upload-button"><ImagePlus size={17}/> Upload image<input type="file" accept="image/*" onChange={(event) => { void onUpload(event.target.files?.[0]); event.currentTarget.value = ''; }}/></label></div>
-        <p className="permission-note"><ShieldCheck size={14}/> Camera frames are processed on-device and are not sent to a server.</p>
+        <div className="scan-actions"><button className="button primary" onClick={cameraOn ? stopCamera : startCamera}>{cameraOn ? 'Stop camera' : 'Start camera'}</button><label className="button secondary upload-button">Choose image<input type="file" accept="image/*" onChange={(event) => { void onUpload(event.target.files?.[0]); event.currentTarget.value = ''; }}/></label></div>
+        <p className="permission-note">Camera frames and uploaded images stay in this browser.</p>
       </div>
       <aside className="right-column">
-        <div className="result-panel panel"><div className="panel-heading"><div><div className="section-kicker">OUTPUT</div><h2>Scan result</h2></div></div>
-          {result ? <div className="result-content"><div className="decoded-badge"><Check size={13}/> Decoded</div><div className="result-text">{result.text}</div><div className="result-meta"><span>{result.format}</span><span>{result.time.toFixed(0)} ms</span><span>{result.path}</span></div><div className="result-actions"><button className="button primary" onClick={() => void copyResult()}>{copied ? <Check size={16}/> : <Copy size={16}/>} {copied ? 'Copied' : 'Copy result'}</button>{isUrl(result.text) && <a className="button secondary" href={result.text} target="_blank" rel="noreferrer">Open link <ExternalLink size={15}/></a>}</div><button className="text-button" onClick={() => { setResult(null); setStatus('Ready to scan'); }}>Clear result</button></div> : <div className="empty-result"><strong>No result yet</strong><span>The decoded text or link will show here.</span></div>}
+        <div className="result-panel panel"><div className="panel-heading"><h2>Result</h2></div>
+          {result ? <div className="result-content"><div className="decoded-badge">Decoded</div><div className="result-text">{result.text}</div><div className="result-meta"><span>{result.format}</span><span>{result.time.toFixed(0)} ms</span><span>{result.path}</span></div><div className="result-actions"><button className="button primary" onClick={() => void copyResult()}>{copied ? 'Copied' : 'Copy result'}</button>{isUrl(result.text) && <a className="button secondary" href={result.text} target="_blank" rel="noreferrer">Open link</a>}</div><button className="text-button" onClick={() => { setResult(null); setStatus('Ready to scan'); }}>Clear result</button></div> : <div className="empty-result"><strong>No result yet</strong><span>The decoded text or link will show here.</span></div>}
         </div>
-        <div className="metrics-panel panel"><div className="metrics-title">This session</div><div className="metrics-grid"><div className="metric"><span>Successful scans</span><strong>{scans}</strong></div><div className="metric"><span>Recovered scans</span><strong>{recovered}</strong></div><div className="metric metric-wide"><span>Last decode time</span><strong>{lastLatency === null ? '—' : `${lastLatency.toFixed(0)} ms`}</strong><small>Time for the last successful decode</small></div></div></div>
+        <div className="metrics-panel panel"><div className="metrics-title">Session stats</div><div className="metrics-grid"><div className="metric"><span>Successful scans</span><strong>{scans}</strong></div><div className="metric"><span>Recovered scans</span><strong>{recovered}</strong></div><div className="metric metric-wide"><span>Last decode time</span><strong>{lastLatency === null ? '—' : `${lastLatency.toFixed(0)} ms`}</strong><small>Time for the last successful decode</small></div></div></div>
       </aside>
     </section>
-    <section className="method-note"><strong>If the first scan fails</strong><p>The app retries with contrast normalization and a black-and-white version of the image. Camera frames and uploaded images are processed in this browser.</p></section>
-    <footer><span>QR Scanner · College project</span><span>Decode time varies with the device and image quality.</span></footer>
+    <footer><span>QR Scanner</span><span>Decode time depends on the device and image quality.</span></footer>
   </main>;
 }
