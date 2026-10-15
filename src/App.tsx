@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { readBarcodes } from 'zxing-wasm/reader';
-import { Camera, Check, Copy, ExternalLink, ImagePlus, RefreshCw, ScanLine, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { Camera, Check, Copy, ExternalLink, ImagePlus, ScanLine, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 
 type ScanResult = { text: string; format: string; time: number; path: string };
 
@@ -184,7 +184,7 @@ export default function App() {
 
   return <main className="app-shell">
     <header className="topbar"><a className="brand" href="#top"><span className="brand-mark"><ScanLine size={21}/></span><span>prism<span className="brand-light">scan</span></span><span className="beta">BETA</span></a><div className="top-note"><span className="live-dot"/> Runs locally in your browser</div></header>
-    <section className="hero" id="top"><div className="eyebrow"><Sparkles size={14}/> SMART QR DECODING</div><h1>Not all QR codes<br/><span>are created equal.</span></h1><p className="subtitle">A fast, privacy-first scanner built to take a second look at stylized, low-contrast QR codes.</p><div className="hero-pills"><span><Zap size={14}/> Fast-first decoding</span><span><RefreshCw size={14}/> Adaptive recovery</span><span><ShieldCheck size={14}/> No image uploads</span></div></section>
+    <section className="hero" id="top"><div className="eyebrow">COLLEGE PROJECT · IN BROWSER</div><h1>A QR scanner that<br/><span>tries again when needed.</span></h1><p className="subtitle">Scan with your camera or upload an image. If a stylized or low-contrast code fails on the first pass, Prism Scan tries a couple of image-recovery steps.</p></section>
     <section className="workspace">
       <div className="scanner-panel panel"><div className="panel-heading"><div><div className="section-kicker">SCANNER</div><h2>Scan a code</h2></div><span className={`status-chip ${result ? 'success' : ''}`}><span className="status-dot"/>{result ? 'Decoded' : status}</span></div>
         <div className={`camera-stage ${cameraOn ? 'camera-active' : ''}`}>
@@ -204,7 +204,7 @@ export default function App() {
         <div className="metrics-panel panel"><div className="section-kicker">SESSION METRICS</div><div className="metrics-grid"><div className="metric"><span>Successful scans</span><strong>{scans}</strong></div><div className="metric"><span>Recovered scans</span><strong>{recovered}</strong></div><div className="metric metric-wide"><span>Last decode time</span><strong>{lastLatency === null ? '—' : `${lastLatency.toFixed(0)} ms`}</strong><small>Measured in this browser session</small></div></div></div>
       </aside>
     </section>
-    <section className="how-section"><div className="section-kicker">WHY PRISM SCAN</div><h2>Fast first. Smarter on retry.</h2><div className="feature-grid"><article className="feature-card"><span className="feature-icon violet"><Zap size={19}/></span><h3>Fast path first</h3><p>Try decoding the original frame before spending time on image transformations.</p></article><article className="feature-card"><span className="feature-icon blue"><Sparkles size={19}/></span><h3>Recovery on demand</h3><p>If the first attempt fails, try contrast normalization and Otsu thresholding.</p></article><article className="feature-card"><span className="feature-icon green"><ShieldCheck size={19}/></span><h3>Privacy by design</h3><p>Camera and uploaded images stay in your browser. No account or backend needed.</p></article></div></section>
+    <section className="how-section"><div className="section-kicker">HOW IT WORKS</div><h2>One normal attempt, then recovery.</h2><div className="feature-grid"><article className="feature-card"><span className="feature-icon violet"><Zap size={19}/></span><h3>1. Decode the original</h3><p>The scanner tries the unmodified image first to keep common scans quick.</p></article><article className="feature-card"><span className="feature-icon blue"><Sparkles size={19}/></span><h3>2. Adjust the image</h3><p>If decoding fails, it tests a contrast-normalized image and a black-and-white version.</p></article><article className="feature-card"><span className="feature-icon green"><ShieldCheck size={19}/></span><h3>3. Keep it local</h3><p>Image processing happens in this browser; nothing is uploaded to a server.</p></article></div></section>
     <footer><span>PRISM SCAN <span className="footer-muted">· College club prototype</span></span><span>Target: under 500 ms · Actual performance depends on device and QR design</span></footer>
   </main>;
 }
